@@ -1,51 +1,48 @@
 import validator from "validator";
-import AuthService from "../services/AuthService";
+import * as AuthService from "../services/AuthService";
+import IApiResponse from "../types/IApiResponse";
 
-class AuthController {
-    static async signup({
-        name,
-        email,
-        password,
-        password_confirmation,
-    }: {
-        email: string;
-        name: string;
-        password: string;
-        password_confirmation: string;
-    }): Promise<any> {
-        const errors = [];
-        if (validator.isEmpty(password || "")) {
-            errors.push({ field: "password", message: "Password can not be empty" });
-        }
+export async function signup({
+    name,
+    email,
+    password,
+}: {
+    email: string;
+    name: string;
+    password: string;
+}): Promise<IApiResponse<string>> {
+    const errors = [];
 
-        if (password !== password_confirmation) {
-            errors.push({ field: "password", message: "Passwords must be equal" });
-        }
-
-        if (!validator.isEmail(email || "")) {
-            errors.push({ field: "email", message: "Email is invalid" });
-        }
-
-        if (validator.isAlpha(name || "")) {
-            errors.push({ field: "name", error: "Name is invalid" });
-        }
-
-        if (errors.length !== 0) {
-            return { status: 422, response: { error: errors } };
-        }
-
-        return await AuthService.signup({ name, email, password });
+    // TODO: Rewrite to get all errors in one time - helper
+    if (validator.isEmpty(password || "")) {
+        errors.push({ error: "password", message: "Password can not be empty" });
     }
 
-    static async login({ email, password }: { email: string; password: string }): Promise<any> {
-        const errors = [];
-
-        if (!validator.isEmail(email || "")) {
-            errors.push({ field: "email", message: "Email is invalid" });
-        }
-
-        return await AuthService.login({ email, password });
+    if (!validator.isEmail(email || "")) {
+        errors.push({ error: "email", message: "Email is invalid" });
     }
+
+    if (validator.isEmpty(name || "") || validator.isAlpha(name)) {
+        errors.push({ error: "name", message: "Name is invalid" });
+    }
+
+    if (errors.length !== 0) {
+        return { code: 422, response: { success: false, response: errors } };
+    }
+
+    return await AuthService.signup({ name, email, password });
 }
 
-export default AuthController;
+export async function login({ email, password }: { email: string; password: string }): Promise<IApiResponse<string>> {
+    const errors = [];
+
+    if (!validator.isEmail(email || "")) {
+        errors.push({ error: "email", message: "Email is invalid" });
+    }
+
+    if (errors.length !== 0) {
+        return { code: 422, response: { success: false, response: errors } };
+    }
+
+    return await AuthService.login({ email, password });
+}

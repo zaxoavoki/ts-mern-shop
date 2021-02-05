@@ -1,13 +1,7 @@
 import mongoose from "mongoose";
+import IUser from "../../types/models/IUser";
 
-const { Schema } = mongoose;
-
-const userSchema = new Schema({
-    id: {
-        type: String,
-        unique: true,
-    },
-    // TODO: Replace _id with id
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -19,5 +13,10 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
-    password: String,
+    password: {
+        type: String,
+        required: true,
+    },
 });
+
+export default mongoose.model<IUser>("User", userSchema);
