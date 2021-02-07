@@ -1,0 +1,11 @@
+# ides
+/dist
+/node_modules
+
+package-lock.json
+
+# environment variables
+.env
+.env.local
+.env.local.development
+.env.local.production
